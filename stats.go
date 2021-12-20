@@ -32,6 +32,11 @@ func getStats() (*Stats, error) {
 	//	fmt.Println("Cpu.Info error: ", err)
 	//	return nil, err
 	//}
+	cpuStats, err := cpu.Info()
+	if err != nil {
+		fmt.Println("Cpu.Info error: ", err)
+		return nil, err
+	}
 
 	percentage, err := cpu.Percent(0, true)
 	if err != nil {
@@ -59,9 +64,14 @@ func getStats() (*Stats, error) {
 	}
 	stats.Cpu = Cpu{
 		Percentage: percentage,
+		Model:      cpuStats[0].ModelName,
+		Cores:      int(cpuStats[0].Cores),
 	}
 	stats.Host = Host{
-		Procs: hostStat.Procs,
+		Procs:           hostStat.Procs,
+		OS:              hostStat.OS,
+		Platform:        hostStat.Platform,
+		PlatformVersion: hostStat.PlatformVersion,
 	}
 
 	return &stats, nil
@@ -74,10 +84,15 @@ type Stats struct {
 	Host   Host
 }
 type Host struct {
-	Procs uint64
+	Procs           uint64
+	OS              string
+	PlatformVersion string
+	Platform        string
 }
 type Cpu struct {
 	Percentage []float64
+	Model      string
+	Cores      int
 }
 type Disk struct {
 	Total       uint64
